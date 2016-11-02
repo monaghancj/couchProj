@@ -1,0 +1,14 @@
+{
+  "couch": {
+    "protocol": "http",
+    "hostname": "127.0.0.1",
+    "port": 5984,
+    "pathname": "consumables"
+  },
+  "mySQL": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "dbName": "relief_tracker"
+  },
+  "debug": true
+}
