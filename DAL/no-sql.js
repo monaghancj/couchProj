@@ -27,20 +27,19 @@ var dal = {
 //  ---------  UTILITY  ----------  //
 function queryDB(sortBy, startKey, limit, callback) {
     if (typeof startKey == "undefined" || startKey === null) {
-        return callback(new Error('Missing search parameter'));
+        return callback(new Error('Missing startKey parameter'));
     } else if (typeof limit == "undefined" || limit === null || limit === 0) {
         return callback(new Error('Missing limit parameter'));
     } else {
         limit = startKey === '' ? Number(limit) : Number(limit) + 1;
         console.log("sortBy: ", sortBy, " startKey: ", startKey, " limit: ", limit)
-
         db.query(sortBy, {
             startkey: startKey,
             limit: limit,
             include_docs: true
         }).then(function(result) {
             if (startKey !== '' && result.rows.length > 0) { result.rows.shift(); }
-            return callback(null, result.rows.map(convertPersons));
+            return callback(null, result.rows);
         }).catch(function(err) {
             return callback(err);
         });
@@ -55,17 +54,6 @@ function getDocByID(id, callback) {
         db.get(id, function(err, data) {
             if (err) return callback(err);
             if (data) return callback(null, data);
-        });
-    }
-}
-
-function createView(designDoc, callback) {
-    if (typeof designDoc == "undefined" || designDoc === null) {
-        return callback(new Error('400Missing design document.'));
-    } else {
-        db.put(designDoc, function(err, response) {
-            if (err) return callback(err);
-            if (response) return callback(null, response);
         });
     }
 }
@@ -101,14 +89,101 @@ function deleteDoc(data, callback) {
     }
 }
 
+function createView(designDoc, callback) {
+    if (typeof designDoc == "undefined" || designDoc === null) {
+        return callback(new Error('400Missing design document.'));
+    } else {
+        db.put(designDoc, function(err, response) {
+            if (err) return callback(err);
+            if (response) return callback(null, response);
+        });
+    }
+}
+
 //  -----------  BEVERAGES  ------------  //
-function getBeverage() {
-  
+function getBeverage(id, callback) {
+  getDocByID(id, callback)
+}
+
+function listBeverage(sortBy, startKey, limit, callback) {
+  queryDB(sortBy, startKey, limit, callback)
+}
+
+function createBeverage(data, callback){
+  // Call to couch retrieving a document with the given _id value.
+  if (typeof data == "undefined" || data === null) {
+      return callback(new Error('400Missing data for create'));
+  } else if (data.hasOwnProperty('_id') === true) {
+      return callback(new Error('400Unnecessary id property within data.'));
+  } else if (data.hasOwnProperty('_rev') === true) {
+      return callback(new Error('400Unnecessary rev property within data'));
+  } else if (data.hasOwnProperty('name') !== true) {
+      return callback(new Error('400Missing name property within data'));
+  } else if (data.hasOwnProperty('subtype') !== true) {
+      return callback(new Error('400Missing subtype property within data'));
+  } else if (data.hasOwnProperty('ingredients') !== true) {
+      return callback(new Error('400Missing ingredients property within data'));
+  } else {
+      data.active = true;
+      data.type = 'beverage';
+      data._id = 'beverage_' + data.name;
+
+      db.put(data, function(err, response) {
+          if (err) return callback(err);
+          if (response) return callback(null, response);
+      });
+  }
+}
+
+function updateBeverage(data, callback){
+  updateDoc(data, callback)
+}
+
+function deleteBeverage(data, callback) {
+  deleteDoc(data, callback)
 }
 
 //  -----------  FOOD  --------------  ///
 function getFood(id, callback) {
   getDocByID(id, callback)
+}
+
+function listFood(sortBy, startKey, limit, callback) {
+  queryDB(sortBy, startKey, limit, callback)
+}
+
+function createFood(data, callback) {
+  // Call to couch retrieving a document with the given _id value.
+  if (typeof data == "undefined" || data === null) {
+      return callback(new Error('400Missing data for create'));
+  } else if (data.hasOwnProperty('_id') === true) {
+      return callback(new Error('400Unnecessary id property within data.'));
+  } else if (data.hasOwnProperty('_rev') === true) {
+      return callback(new Error('400Unnecessary rev property within data'));
+  } else if (data.hasOwnProperty('name') !== true) {
+      return callback(new Error('400Missing name property within data'));
+  } else if (data.hasOwnProperty('subtype') !== true) {
+      return callback(new Error('400Missing subtype property within data'));
+  } else if (data.hasOwnProperty('ingredients') !== true) {
+      return callback(new Error('400Missing ingredients property within data'));
+  } else {
+      data.active = true;
+      data.type = 'food';
+      data._id = 'food_' + data.name;
+
+      db.put(data, function(err, response) {
+          if (err) return callback(err);
+          if (response) return callback(null, response);
+      });
+  }
+}
+
+function updateFood(data, callback) {
+  updateDoc(data, callback)
+}
+
+function deleteFood(data, callback) {
+  deleteDoc( data, callback)
 }
 
 module.exports = dal
