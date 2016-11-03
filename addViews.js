@@ -26,6 +26,18 @@ var designDoc2 = {
     }
 }
 
+var designDoc3 = {
+    _id: '_design/ingredients',
+    views: {
+        'ingredients': {
+            map: function(doc) {
+                if (doc.type === 'ingredients') {
+                    emit(doc.ingredients + doc._id);
+                }
+            }.toString()
+        }
+    }
+}
 
 dalNoSQL.createView(designDoc, function callback(err, data) {
     if (err) return console.log(err);

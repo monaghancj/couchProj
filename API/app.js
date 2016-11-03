@@ -13,6 +13,22 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
+app.get('/ingredients/:ing', function(req, res, next) {
+  const ingredient = req.params.ing
+  dal.getByIngredient(ingredient, function(err, body) {
+    if (err) return next(console.log("Ingredients Error"))
+    res.status(500).send(body)
+  })
+})
+
+app.get('/subtype/:st', function(req, res, next) {
+  const subtype = req.params.st
+  dal.getBySubType(subtype, function(err, body) {
+    if (err) return next(console.log("Subtype Error"))
+    res.status(500).send(body)
+  })
+})
+
 //  -------  FOOD  --------  //
 app.get('/food/:id', function(req, res, next) {
     const foodID = req.params.id;
